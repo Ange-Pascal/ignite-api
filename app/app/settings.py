@@ -30,7 +30,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # Local apps
+    'drf_spectacular',
     'core',
+    'users',
+    'instructors',
+    'rest_framework',
+    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
@@ -101,6 +106,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
+
 # Internationalization
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
@@ -112,3 +119,12 @@ STATIC_URL = 'static/'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTH_USER_MODEL = 'users.User'
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    )
+}
