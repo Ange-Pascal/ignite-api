@@ -4,6 +4,8 @@ from rest_framework.test import APIClient
 from rest_framework import status
 from django.test import TestCase
 from rest_framework.test import APITestCase
+from roles.models import Role
+
 
 
 CREATE_USER_URL = reverse("user:create")
@@ -28,6 +30,9 @@ class PublicUserApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         user = get_user_model().objects.get(email=payload["email"])
         self.assertTrue(user.check_password(payload["password"]))
+
+        #Vérifier que le role student du user à été attribuer automatiquement
+        self.assertTrue(user.roles.filter(name="student").exists())
         self.assertNotIn("password", res.data)
 
 
@@ -47,6 +52,10 @@ class UserMeAndListApiTests(APITestCase):
     """Tests profil et liste des utilisateurs avec rôles"""
 
     def setUp(self):
+        #Créer les roles de base
+        self.student_role = Role.objects.create(name="student")
+        self.instructor_role = Role.objects.create(name="instructor")
+
         # Créer les utilisateurs avec rôles
         self.admin = get_user_model().objects.create_superuser(
             email="admin@example.com",
@@ -58,11 +67,14 @@ class UserMeAndListApiTests(APITestCase):
             password="pass123",
             name="User One"
         )
+        self.user1.roles.add(self.student_role)
+
         self.user2 = get_user_model().objects.create_user(
             email="user2@example.com",
             password="pass123",
             name="User Two"
         )
+        self.user2.roles.add(self.student_role)
 
     def _get_jwt_token(self, user):
         """Helper pour générer un JWT token pour un user"""
@@ -81,6 +93,10 @@ class UserMeAndListApiTests(APITestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data["email"], self.user1.email)
         self.assertEqual(res.data["name"], self.user1.name)
+
+        # Verifie que les roles apparaissent
+        roles = [r["name"] for r in res.data["roles"]]
+        self.assertIn("student", roles  )
 
     def test_admin_sees_all_users(self):
         """Un admin doit voir tous les utilisateurs"""
