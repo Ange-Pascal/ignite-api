@@ -30,7 +30,16 @@ urlpatterns = [
         SpectacularSwaggerView.as_view(url_name="api-schema"),
         name="api-docs"
     ),
-    path("api/user/", include("users.urls")),
+    path("user/", include("users.urls")),
     path("instructors/", include("instructors.urls", namespace="instructor")),  # <-- namespace ici
-
+    path("", include("categories.urls")),
+    path("", include("courses.urls")),
+    path("", include("modules.urls")),
+    path("", include("lessons.urls")),
+    path("", include("outcomes.urls")),
+    path("", include("highlights.urls")),
+    path("", include("reviews.urls")),
+    path("", include("carts.urls")),
+    path("api/", include("cartitems.urls")),
+    path('api/', include('checkouts.urls')),
 ]

@@ -36,6 +36,17 @@ INSTALLED_APPS = [
     'roles',
     'instructors',
     'rest_framework',
+    'categories',
+    'subcategories',
+    'courses',
+    'modules',
+    'lessons',
+    'outcomes',
+    'highlights',
+    'reviews',
+    'carts',
+    'cartitems',
+    'checkouts',
     'rest_framework.authtoken',
 ]
 
