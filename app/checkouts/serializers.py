@@ -6,7 +6,7 @@ from carts.models import Cart
 class CheckoutSerializer(serializers.ModelSerializer):
     class Meta:
         model = Checkout
-        fields = ["id", "user", "cart", "total_amount", "payment_method", "status", "created_at", "updated_at"]
+        fields = ["id", "user", "cart", "total_amount", "status", "created_at", "updated_at"]
         read_only_fields = ["id", "user", "total_amount", "status", "created_at", "updated_at"]
 
     def validate_cart(self, value):
@@ -25,7 +25,6 @@ class CheckoutSerializer(serializers.ModelSerializer):
             user=user,
             cart=cart,
             total_amount=total_amount,
-            payment_method=validated_data["payment_method"],
             status="pending"
         )
 

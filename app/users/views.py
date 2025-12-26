@@ -1,31 +1,62 @@
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAdminUser, AllowAny
 from rest_framework.response import Response
-from rest_framework import status
 from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.settings import api_settings
 from rest_framework.authtoken.models import Token
-from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import get_user_model
 
 from users.models import User
 from roles.models import Role
-
-
-
 from .serializers import UserSerializer, AuthTokenSerializer, CustomTokenObtainPairSerializer
-
 
 class CreateUserView(generics.CreateAPIView):
     serializer_class = UserSerializer
     queryset = get_user_model().objects.all()
+    permission_classes = [AllowAny]
+    authentication_classes = []
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        refresh = RefreshToken.for_user(user)
+
+        response = Response(
+            {
+                "user": {
+                    "id": user.id,
+                    "email": user.email,
+                    "name": user.name,
+                    "phone": user.phone,
+                    "roles": [role.name for role in user.roles.all()],
+                }
+            },
+            status=status.HTTP_201_CREATED
+        )
+
+        response.set_cookie(
+            key="access",
+            value=str(refresh.access_token),
+            httponly=True,
+            secure=True,
+            samesite="Lax"
+        )
+        response.set_cookie(
+            key="refresh",
+            value=str(refresh),
+            httponly=True,
+            secure=True,
+            samesite="Lax"
+        )
+
+        return response
 
 class CreateTokenView(ObtainAuthToken):
     serializer_class = AuthTokenSerializer
-
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
@@ -35,65 +66,43 @@ class ManageUserView(generics.RetrieveAPIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
-
     def get_object(self):
         return self.request.user
 
-
-
 class UserListOrSelfView(generics.ListAPIView):
-    """
-    -Admin : voir tous les users
-    -User Normal : voir seulement lui-même
-    """
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
-        User = get_user_model()
-
+        UserModel = get_user_model()
         if user.is_superuser:
-            return User.objects.all()
-        else:
-            return User.objects.filter(id=user.id)
-
+            return UserModel.objects.all()
+        return UserModel.objects.filter(id=user.id)
 
 class UserDeleteView(generics.DestroyAPIView):
-    """
-    Supprimer un utilisateur par son ID.
-    Seul le superuser peut effectuer cette action.
-    """
     queryset = get_user_model().objects.all()
-    permission_classes = [permissions.IsAdminUser]  # seulement superuser
-
-    lookup_field = "id"            # champ utilisé dans la DB
-    lookup_url_kwarg = "id"        # paramètre envoyé dans l’URL
-
+    permission_classes = [permissions.IsAdminUser]
+    lookup_field = "id"
+    lookup_url_kwarg = "id"
 
 class AddInstructorRoleView(APIView):
-    permission_classes = [IsAdminUser]  # 🔐 Seul admin peut promouvoir
+    permission_classes = [IsAdminUser]
 
     def post(self, request, user_id):
-        """Ajoute le rôle 'instructor' à un user."""
-
-        # Vérifier que l'utilisateur existe
         try:
             user = User.objects.get(id=user_id)
         except User.DoesNotExist:
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        # Récupérer le rôle instructeur
         try:
             instructor_role = Role.objects.get(name="instructor")
         except Role.DoesNotExist:
             return Response({"error": "Instructor role not found"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        # Empêcher les doublons
         if user.roles.filter(name="instructor").exists():
             return Response({"message": "This user is already an instructor."}, status=status.HTTP_200_OK)
 
-        # Ajouter le rôle
         user.roles.add(instructor_role)
 
         return Response(

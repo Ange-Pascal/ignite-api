@@ -59,7 +59,7 @@ class CartItemAPITests(APITestCase):
         self.cart = Cart.objects.create(user=self.user)
 
         # URL
-        self.url = reverse("cart-items-list")
+        self.url = reverse("cartitems:cartitem-list")
 
     # ✅ Authenticated user can add course to cart
     def test_authenticated_user_can_add_course_to_cart(self):
@@ -107,7 +107,7 @@ class CartItemAPITests(APITestCase):
     def test_authenticated_user_can_remove_course_from_cart(self):
         cart_item = CartItem.objects.create(cart=self.cart, course=self.course, price=self.course.price)
         self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {get_token(self.user)}")
-        url_delete = reverse("cart-items-detail", args=[cart_item.id])
+        url_delete = reverse("cartitems:cartitem-detail", args=[cart_item.id])
 
         response = self.client.delete(url_delete)
 

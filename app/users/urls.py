@@ -7,7 +7,7 @@ from users.views import AddInstructorRoleView
 app_name = "user"
 
 urlpatterns = [
-    path("create/", views.CreateUserView.as_view(), name="create"),
+    path("", views.CreateUserView.as_view(), name="users"),
     path("token/", CustomTokenObtainPairView.as_view(), name="token"),
     path("login/", CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("me/", ManageUserView.as_view(), name="me"),

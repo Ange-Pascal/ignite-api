@@ -8,7 +8,7 @@ from roles.models import Role
 
 
 
-CREATE_USER_URL = reverse("user:create")
+CREATE_USER_URL = reverse("user:users")
 TOKEN_URL = reverse("user:token")
 ME_URL = reverse("user:me")
 USER_LIST_URL = reverse("user:list_or_self")
@@ -23,6 +23,7 @@ class PublicUserApiTests(TestCase):
         payload = {
             "email": "test@example.com",
             "password": "pass123",
+            "phone": "07009887654",
             "name": "Test Name"
         }
         res = self.client.post(CREATE_USER_URL, payload)

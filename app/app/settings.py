@@ -31,6 +31,7 @@ INSTALLED_APPS = [
 
     # Local apps
     'drf_spectacular',
+    'corsheaders',
     'core',
     'users',
     'roles',
@@ -47,10 +48,16 @@ INSTALLED_APPS = [
     'carts',
     'cartitems',
     'checkouts',
+    'paymentmethods',
+    'payments',
+    'inscriptions',
+    'videos',
     'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -140,3 +147,11 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     )
 }
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
