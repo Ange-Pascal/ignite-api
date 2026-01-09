@@ -2,25 +2,53 @@ from rest_framework import serializers
 from .models import Video
 
 class VideoSerializer(serializers.ModelSerializer):
+    video = serializers.FileField(write_only=True, required=False)
+
     class Meta:
         model = Video
-        fields = "__all__"
-        read_only_fields = ["video_url"]
+        fields = [
+            "id",
+            "lesson",
+            "video",
+            "video_url",
+            "duration",
+            "provider",
+            "created_at",
+        ]
+        read_only_fields = ["video_url", "provider", "created_at"]
+
+    def validate_lesson(self, lesson):
+        user = self.context["request"].user
+
+        if user.roles.filter(name="admin").exists():
+            return lesson
+
+        if user.roles.filter(name="instructor").exists():
+            if lesson.module.course.user != user:
+                raise serializers.ValidationError(
+                    "Vous ne pouvez pas ajouter une vidéo à ce cours."
+                )
+
+        return lesson
 
     def create(self, validated_data):
-        provider = validated_data.get("provider", "local")
-        uploaded_file = validated_data.pop("uploaded_file", None)
+        request = self.context["request"]
+        file = validated_data.pop("video", None)
 
-        video = Video.objects.create(**validated_data)
+        from .services.storage import handle_video_upload
 
-        if provider == "local" and uploaded_file:
-            video.uploaded_file = uploaded_file
-            video.video_url = video.uploaded_file.url
-            video.save()
-        elif provider == "s3" and uploaded_file:
-            # Si S3 configuré via django-storages, la même logique s'applique
-            video.uploaded_file = uploaded_file
-            video.video_url = video.uploaded_file.url
+        uploaded = handle_video_upload(file)
+
+        video = Video.objects.create(
+            uploaded_file=uploaded,
+            provider="local",
+            **validated_data
+        )
+
+        if uploaded:
+            video.video_url = request.build_absolute_uri(
+                video.uploaded_file.url
+            )
             video.save()
 
         return video
