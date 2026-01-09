@@ -8,17 +8,40 @@ class VideoPermission(BasePermission):
     """
 
     def has_permission(self, request, view):
-        # même règle globale que Course
-        if request.method in SAFE_METHODS:
+        if not request.user.is_authenticated:
+            return False
+
+        if request.method == "POST":
+            lesson_id = request.data.get("lesson")
+            if not lesson_id:
+                return False
+
+            from lessons.models import Lesson
+            try:
+                lesson = Lesson.objects.get(id=lesson_id)
+            except Lesson.DoesNotExist:
+                return False
+
+            if request.user.roles.filter(name="admin").exists():
+                return True
+
+            if request.user.roles.filter(name="instructor").exists():
+                return lesson.module.course.user == request.user
+
+            return False
+
+        return True
+
+    def has_object_permission(self, request, view, obj):
+        user = request.user
+
+        # Admin : tout
+        if user.roles.filter(name="admin").exists():
             return True
 
-        return request.user and request.user.is_authenticated
+        # Instructor : seulement ses vidéos
+        if user.roles.filter(name="instructor").exists():
+            return obj.lesson.module.course.user == user
 
-    def has_object_permission(self, request, view, video):
-        course = video.lesson.module.course
-        course_permission = CoursePermission()
+        return False
 
-        # Délégation directe 🔁
-        return course_permission.has_object_permission(
-            request, view, course
-        )

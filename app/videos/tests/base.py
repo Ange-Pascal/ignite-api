@@ -6,18 +6,29 @@ from lessons.models import Lesson
 from modules.models import Module  # <- on importe Module
 from categories.models import Category
 from subcategories.models import  SubCategory
+from roles.models import Role
 
 User = get_user_model()
 
 class BaseVideoTest(APITestCase):
 
-    def create_user(self, role):
+    def create_user(self, role_name):
         import uuid
+
         unique_id = uuid.uuid4().hex[:6]
-        email = f"{role}_{unique_id}@test.com"  # ✅ email unique à chaque test
-        user = User.objects.create_user(email=email, password="password123")
-        user.role = role
-        user.save()
+        email = f"{role_name}_{unique_id}@test.com"
+
+        user = User.objects.create_user(
+            email=email,
+            password="password123"
+        )
+
+        # 🔑 récupérer ou créer le rôle
+        role, _ = Role.objects.get_or_create(name=role_name)
+
+        # 🔑 attacher le rôle au user
+        user.roles.add(role)
+
         return user
 
     def create_course(self, instructor):
