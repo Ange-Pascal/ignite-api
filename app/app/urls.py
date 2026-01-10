@@ -48,6 +48,9 @@ urlpatterns = [
     path("api/", include("paymentmethods.urls")),
     path("api/", include("payments.urls")),
     path("api/", include("videos.urls")),
+    path("api/", include("typequizs.urls")),
+    path("api/", include("typequestions.urls")),
+
 ]
 
 
