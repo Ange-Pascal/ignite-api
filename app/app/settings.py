@@ -72,6 +72,7 @@ INSTALLED_APPS = [
     'videos',
     'typequizs',
     'typequestions',
+    'typeresponses',
     'rest_framework.authtoken',
 ]
 

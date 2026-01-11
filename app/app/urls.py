@@ -50,6 +50,7 @@ urlpatterns = [
     path("api/", include("videos.urls")),
     path("api/", include("typequizs.urls")),
     path("api/", include("typequestions.urls")),
+    path("api/", include("typeresponses.urls")),
 
 ]
 
