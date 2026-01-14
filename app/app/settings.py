@@ -73,6 +73,10 @@ INSTALLED_APPS = [
     'typequizs',
     'typequestions',
     'typeresponses',
+    'quizs',
+    'quizquestions',
+    'quizoptions',
+    'quizattempts',
     'rest_framework.authtoken',
 ]
 

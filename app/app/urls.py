@@ -51,6 +51,10 @@ urlpatterns = [
     path("api/", include("typequizs.urls")),
     path("api/", include("typequestions.urls")),
     path("api/", include("typeresponses.urls")),
+    path("api/", include("quizs.urls")),
+    path("api/", include("quizquestions.urls")),
+    path("api/", include("quizoptions.urls")),
+    path("api/", include("quizattempts.urls")),
 
 ]
 
