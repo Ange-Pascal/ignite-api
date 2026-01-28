@@ -1,0 +1,59 @@
+name: CI/CD Django -> Cloud Run (Safe Deploy)
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Checkout
+      - uses: actions/checkout@v3
+
+      # 2️⃣ Docker Buildx (linux/amd64)
+      - name: Set up Docker Buildx
+        run: docker buildx create --use
+
+      # 3️⃣ Auth GCP (Workload Identity)
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      # 4️⃣ Docker auth
+      - name: Configure Docker
+        run: gcloud auth configure-docker
+
+      # 5️⃣ Build & push image
+      - name: Build and push image
+        run: |
+          IMAGE="gcr.io/${{ secrets.GCP_PROJECT_ID }}/ignite-api:${{ github.sha }}"
+          docker buildx build \
+            --platform linux/amd64 \
+            -t $IMAGE \
+            --push .
+
+      # 6️⃣ Deploy (rollback auto si échec)
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy ignite-api \
+            --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/ignite-api:${{ github.sha }} \
+            --region europe-west1 \
+            --platform managed \
+            --allow-unauthenticated \
+            --update-env-vars \
+            ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }},\
+            DATABASE_URL=${{ secrets.DATABASE_URL }},\
+            DEBUG=${{ secrets.DEBUG }},\
+            DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }},\
+            USE_CLOUD_STORAGE=${{ secrets.USE_CLOUD_STORAGE }}
+
+      # 7️⃣ Vérification état service
+      - name: Check service status
+        run: |
+          gcloud run services describe ignite-api \
+            --region europe-west1 \
+            --format="value(status.conditions[0].status)"
