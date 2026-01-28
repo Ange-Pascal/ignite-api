@@ -6,7 +6,7 @@ on:
 
 permissions:
   contents: read
-  id-token: write   # 🔐 nécessaire pour OIDC
+  id-token: write   # nécessaire pour OIDC
 
 jobs:
   deploy:
@@ -25,7 +25,7 @@ jobs:
       - name: Authenticate to GCP
         uses: google-github-actions/auth@v1
         with:
-          token_format: 'access_token'                      # ✅ Obligatoire pour certains workflows
+          token_format: 'access_token'
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
@@ -34,7 +34,7 @@ jobs:
         uses: google-github-actions/setup-gcloud@v1
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
-          export_default_credentials: true   # ✅ Permet d'utiliser gcloud et docker auth automatiquement
+          install_components: 'beta'
 
       # 5️⃣ Docker auth (GCR)
       - name: Configure Docker auth
@@ -46,23 +46,19 @@ jobs:
           IMAGE="gcr.io/${{ secrets.GCP_PROJECT_ID }}/ignite-api:${{ github.sha }}"
           docker buildx build \
             --platform linux/amd64 \
-            -t $IMAGE \
+            -t "$IMAGE" \
             --push .
 
       # 7️⃣ Deploy Cloud Run
       - name: Deploy to Cloud Run
         run: |
+          IMAGE="gcr.io/${{ secrets.GCP_PROJECT_ID }}/ignite-api:${{ github.sha }}"
           gcloud run deploy ignite-api \
-            --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/ignite-api:${{ github.sha }} \
+            --image "$IMAGE" \
             --region europe-west1 \
             --platform managed \
             --allow-unauthenticated \
-            --set-env-vars \
-            ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }},\
-            DATABASE_URL=${{ secrets.DATABASE_URL }},\
-            DEBUG=${{ secrets.DEBUG }},\
-            DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }},\
-            USE_CLOUD_STORAGE=${{ secrets.USE_CLOUD_STORAGE }}
+            --set-env-vars "ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }}","DATABASE_URL=${{ secrets.DATABASE_URL }}","DEBUG=${{ secrets.DEBUG }}","DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}","USE_CLOUD_STORAGE=${{ secrets.USE_CLOUD_STORAGE }}"
 
       # 8️⃣ Vérification état du service
       - name: Check service status
