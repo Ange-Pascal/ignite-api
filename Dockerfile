@@ -11,7 +11,13 @@ ENV PATH="/py/bin:$PATH"
 RUN apk add --no-cache postgresql-libs libpq bash curl
 
 # Dépendances de build temporaires
-RUN apk add --no-cache --virtual .build-deps build-base postgresql-dev musl-dev
+RUN apk add --no-cache --virtual .build-deps \
+    build-base \
+    postgresql-dev \
+    musl-dev \
+    libffi-dev \
+    openssl-dev \
+    python3-dev
 
 # --- DOSSIER DE TRAVAIL ---
 WORKDIR /app
@@ -19,9 +25,10 @@ WORKDIR /app
 # --- INSTALLATION DES DEPENDANCES PYTHON ---
 COPY requirements.txt /tmp/requirements.txt
 RUN python -m venv /py && \
-    /py/bin/pip install --upgrade pip && \
-    /py/bin/pip install --no-cache-dir -r /tmp/requirements.txt && \
-    rm -rf /tmp
+    /py/bin/pip install --upgrade pip setuptools wheel && \
+    /py/bin/pip install --no-cache-dir -r /tmp/requirements.txt --prefer-binary && \
+    rm -rf /tmp && \
+    apk del .build-deps
 
 # --- COPIE DU CODE ---
 COPY ./app /app
