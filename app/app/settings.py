@@ -143,19 +143,29 @@ WSGI_APPLICATION = 'app.wsgi.application'
 
 # Database
 
-if os.environ.get("DATABASE_URL"):
-    DATABASES = {"default": dj_database_url.parse(os.environ.get("DATABASE_URL"))}
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'HOST': os.environ.get('DB_HOST', 'db'),
-            'NAME': os.environ.get('DB_NAME', 'app'),
-            'USER': os.environ.get('DB_USER', 'postgres'),
-            'PASSWORD': os.environ.get('DB_PASS', ''),
-        }
-    }
+DATABASE_URL = os.environ.get("DATABASE_URL")
 
+
+if DATABASE_URL:
+    DATABASES = {
+    "default": dj_database_url.parse(
+    DATABASE_URL,
+    conn_max_age=600,
+    ssl_require=False,
+    )
+    }
+else:
+# Fallback DEV / Docker local uniquement
+    DATABASES = {
+    "default": {
+    "ENGINE": "django.db.backends.postgresql",
+    "HOST": os.environ.get("DB_HOST", "localhost"),
+    "NAME": os.environ.get("DB_NAME", "app"),
+    "USER": os.environ.get("DB_USER", "postgres"),
+    "PASSWORD": os.environ.get("DB_PASS", ""),
+    "PORT": os.environ.get("DB_PORT", "5432"),
+    }
+    }
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
