@@ -30,13 +30,24 @@ DEBUG = os.environ.get('DEBUG', '1') == '1'
 # ).split(",")
 
 # Local test
-ENV = os.environ.get("ENV", "local")
+# ENV = os.environ.get("ENV", "local")
 
-if ENV == "local":
-    ALLOWED_HOSTS = ["localhost", "127.0.0.1", "0.0.0.0"]
-else:
-    raw_hosts = os.environ.get("ALLOWED_HOSTS", "")
-    ALLOWED_HOSTS = [h.strip() for h in raw_hosts.split(",") if h.strip()]
+# if ENV == "local":
+#     ALLOWED_HOSTS = ["localhost", "127.0.0.1", "0.0.0.0"]
+# else:
+#     raw_hosts = os.environ.get("ALLOWED_HOSTS", "")
+#     ALLOWED_HOSTS = [h.strip() for h in raw_hosts.split(",") if h.strip()]
+
+
+# Environment
+ENV = os.getenv("ENV", "production")
+
+# Allowed hosts
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
+
+# Cloud Run proxy / HTTPS
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
