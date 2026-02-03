@@ -23,13 +23,13 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'dev-secret-key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', '1') == '1'
 
-# In prod is working
-# ALLOWED_HOSTS = os.environ.get(
-#     "ALLOWED_HOSTS",
-#     "localhost,127.0.0.1,ignite-api-689743353539.europe-west1.run.app"
-# ).split(",")
+#In prod is working
+ALLOWED_HOSTS = os.environ.get(
+    "ALLOWED_HOSTS",
+    "localhost,127.0.0.1,ignite-api-689743353539.europe-west1.run.app"
+).split(",")
 
-# Local test
+#Local test
 # ENV = os.environ.get("ENV", "local")
 
 # if ENV == "local":
@@ -37,6 +37,8 @@ DEBUG = os.environ.get('DEBUG', '1') == '1'
 # else:
 #     raw_hosts = os.environ.get("ALLOWED_HOSTS", "")
 #     ALLOWED_HOSTS = [h.strip() for h in raw_hosts.split(",") if h.strip()]
+
+#En local ça ne fonction pas mais en production oui
 
 
 # Environment

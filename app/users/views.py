@@ -8,10 +8,17 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import get_user_model
+from rest_framework.permissions import IsAuthenticated
+import os
+
 
 from users.models import User
 from roles.models import Role
 from .serializers import UserSerializer, AuthTokenSerializer, CustomTokenObtainPairSerializer
+from .permissions import IsAdminRole
+
+ENV = os.environ.get("ENV", "local")
+
 
 class CreateUserView(generics.CreateAPIView):
     serializer_class = UserSerializer
@@ -37,26 +44,28 @@ class CreateUserView(generics.CreateAPIView):
             },
             status=status.HTTP_201_CREATED
         )
+        if ENV == "local":
+            secure_cookie = False
+        else:
+            secure_cookie = True
 
         response.set_cookie(
             key="access",
             value=str(refresh.access_token),
             httponly=True,
-            secure=True,
+            secure=secure_cookie,
             samesite="Lax"
         )
         response.set_cookie(
             key="refresh",
             value=str(refresh),
             httponly=True,
-            secure=True,
+            secure=secure_cookie,
             samesite="Lax"
         )
 
         return response
 
-class CreateTokenView(ObtainAuthToken):
-    serializer_class = AuthTokenSerializer
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
@@ -113,3 +122,18 @@ class AddInstructorRoleView(APIView):
             },
             status=status.HTTP_200_OK
         )
+
+
+class ProtectedView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response({"Message": "JWT is correct"})
+
+
+class AdminOnlyView(APIView):
+    permission_classes = [IsAuthenticated, IsAdminRole]
+
+
+    def get(self, request):
+        return Response({"Message": "Admin autorized"})
