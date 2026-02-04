@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import get_user_model
 from rest_framework.permissions import IsAuthenticated
-import os
+# import os
 
 
 from users.models import User
@@ -17,7 +17,7 @@ from roles.models import Role
 from .serializers import UserSerializer, AuthTokenSerializer, CustomTokenObtainPairSerializer
 from .permissions import IsAdminRole
 
-ENV = os.environ.get("ENV", "local")
+# ENV = os.environ.get("ENV", "local")
 
 
 class CreateUserView(generics.CreateAPIView):
@@ -35,7 +35,7 @@ class CreateUserView(generics.CreateAPIView):
         access_token = str(refresh.access_token)
         refresh_token = str(refresh)
 
-        secure_cookie = ENV != "local"
+        # secure_cookie = ENV != "local"
 
         response = Response(
             {
@@ -60,7 +60,8 @@ class CreateUserView(generics.CreateAPIView):
             key="access",
             value=access_token,
             httponly=True,
-            secure=secure_cookie,
+            # secure=secure_cookie,
+            secure=True,
             samesite="Lax",
         )
 
@@ -68,7 +69,8 @@ class CreateUserView(generics.CreateAPIView):
             key="refresh",
             value=refresh_token,
             httponly=True,
-            secure=secure_cookie,
+            # secure=secure_cookie,
+            secure=True,
             samesite="Lax",
         )
 

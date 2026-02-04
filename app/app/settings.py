@@ -44,7 +44,7 @@ ALLOWED_HOSTS = os.environ.get(
 #En local ça ne fonction pas mais en production oui
 
 
-# Environment
+#Environment
 ENV = os.getenv("ENV", "production")
 
 # Allowed hosts
