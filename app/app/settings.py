@@ -30,6 +30,7 @@ ALLOWED_HOSTS = os.environ.get(
 ).split(",")
 
 #Local test
+#---------------------------------
 # ENV = os.environ.get("ENV", "local")
 
 # if ENV == "local":
@@ -37,6 +38,8 @@ ALLOWED_HOSTS = os.environ.get(
 # else:
 #     raw_hosts = os.environ.get("ALLOWED_HOSTS", "")
 #     ALLOWED_HOSTS = [h.strip() for h in raw_hosts.split(",") if h.strip()]
+
+#-----------------------------------
 
 #En local ça ne fonction pas mais en production oui
 

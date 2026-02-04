@@ -30,7 +30,12 @@ class CreateUserView(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
+
         refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
+        refresh_token = str(refresh)
+
+        secure_cookie = ENV != "local"
 
         response = Response(
             {
@@ -40,31 +45,35 @@ class CreateUserView(generics.CreateAPIView):
                     "name": user.name,
                     "phone": user.phone,
                     "roles": [role.name for role in user.roles.all()],
+                },
+                # 🔥 TOKENS VISIBLES POUR LE FRONT
+                "tokens": {
+                    "access": access_token,
+                    "refresh": refresh_token,
                 }
             },
             status=status.HTTP_201_CREATED
         )
-        if ENV == "local":
-            secure_cookie = False
-        else:
-            secure_cookie = True
 
+        # 🔐 Cookies sécurisés
         response.set_cookie(
             key="access",
-            value=str(refresh.access_token),
+            value=access_token,
             httponly=True,
             secure=secure_cookie,
-            samesite="Lax"
+            samesite="Lax",
         )
+
         response.set_cookie(
             key="refresh",
-            value=str(refresh),
+            value=refresh_token,
             httponly=True,
             secure=secure_cookie,
-            samesite="Lax"
+            samesite="Lax",
         )
 
         return response
+
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
