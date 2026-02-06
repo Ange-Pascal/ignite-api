@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import sys
 import dj_database_url
+from datetime import timedelta
 
 
 # Build paths inside the project like: BASE_DIR / "subdir".
@@ -239,4 +240,13 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=7),  # L'utilisateur peut naviguer 1h sans refresh
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=14),     # L'utilisateur reste connecté 7 jours
+    'ROTATE_REFRESH_TOKENS': True,                  # Renouvelle le refresh token à chaque usage
+    'BLACKLIST_AFTER_ROTATION': True,               # Sécurité : l'ancien token devient invalide
+
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
 
