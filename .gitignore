@@ -152,12 +152,14 @@ venv.bak/
 # Spyder project settings
 .spyderproject
 .spyproject
+.DS_Store
 
 # Rope project settings
 .ropeproject
 
 # mkdocs documentation
 /site
+app/staticfiles/
 
 # mypy
 .mypy_cache/

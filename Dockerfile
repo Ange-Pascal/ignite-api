@@ -45,4 +45,4 @@ USER django-user
 EXPOSE 8080
 
 # --- COMMANDE DE DÉMARRAGE ---
-CMD ["/entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
