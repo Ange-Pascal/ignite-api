@@ -105,6 +105,8 @@ INSTALLED_APPS = [
     'categories',
     'subcategories',
     'courses',
+    'courserequirements',
+    'courselearningpoints',
     'modules',
     'lessons',
     'outcomes',

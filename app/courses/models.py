@@ -16,7 +16,10 @@ class Course(models.Model):
         ("draft", "Draft"),
         ("published", "Published"),
     ]
-
+    LANGUAGE_CHOICES = [
+        ("english", "English"),
+        ("French", "french"),
+    ]
     user = models.ForeignKey(
         User,
         related_name="courses",
@@ -36,17 +39,21 @@ class Course(models.Model):
     slug = models.SlugField(unique=True)
     subtitle = models.CharField(max_length=255)
     description = models.TextField()
-    language = models.CharField(max_length=50)
+    #GET
+    language = models.CharField(max_length=50, choices=LANGUAGE_CHOICES)
     level = models.CharField(max_length=20, choices=LEVEL_CHOICES)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES)
+
     price = models.DecimalField(max_digits=10, decimal_places=2)
     discount_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     thumbnail = models.CharField(max_length=255)
     promo_video_url = models.CharField(max_length=255)
-    requirements = models.TextField()
-    what_you_will_learn = models.TextField()
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES)
+    # Fais automatiquement dans le signal review
     average_rating = models.FloatField(default=0)
+    # Fais automatiquement dans le signal inscription
     total_students = models.IntegerField(default=0)
+
+     # Fais automatiquement dans le signal review
     total_reviews = models.IntegerField(default=0)
 
     created_at = models.DateTimeField(auto_now_add=True)

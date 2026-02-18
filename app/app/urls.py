@@ -45,6 +45,8 @@ urlpatterns = [
     path("api/instructors/", include("instructors.urls", namespace="instructor")),  # <-- namespace ici
     path("api/", include("categories.urls")),
     path("api/", include("courses.urls")),
+    path("api/", include("courserequirements.urls")),
+    path("api/", include("courselearningpoints.urls")),
     path("api/", include("modules.urls")),
     path("api/", include("lessons.urls")),
     path("api/", include("outcomes.urls")),
