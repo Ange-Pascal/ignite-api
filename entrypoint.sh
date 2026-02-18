@@ -14,6 +14,7 @@ python manage.py migrate --noinput || true
 echo "--- SEEDING START ---"
 python manage.py seed_users || echo "Seed users failed"
 python manage.py seed_categories || echo "Seed categories failed"
+python manage.py seed_subcategories || echo "Seed categories failed"
 echo "--- SEEDING END ---"
 
 echo "Collecting static files..."

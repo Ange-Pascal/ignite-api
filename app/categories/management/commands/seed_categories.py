@@ -8,15 +8,16 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         # Liste généraliste pour tout type de LMS
         category_names = [
-            "Development",
-            "Business",
-            "IT & Software",
-            "Design",
-            "Marketing",
-            "Personal Development",
-            "Health & Fitness",
-            "Photography & Video",
-            "Lifestyle"
+            "Web Development",
+            "Artificial Intelligence",
+            "Data Science",
+            "Cloud & DevOps",
+            "Cybersecurity",
+            "Design & Creative",
+            "Digital Marketing",
+            "Business & Finance",
+            "Soft Skills",
+            "Mobile Development"
         ]
 
        # Remplace la ligne 22 par :
