@@ -18,7 +18,7 @@ class Course(models.Model):
     ]
     LANGUAGE_CHOICES = [
         ("english", "English"),
-        ("French", "french"),
+        ("french", "French"),
     ]
     user = models.ForeignKey(
         User,
@@ -39,13 +39,15 @@ class Course(models.Model):
     slug = models.SlugField(unique=True)
     subtitle = models.CharField(max_length=255)
     description = models.TextField()
+
     #GET
     language = models.CharField(max_length=50, choices=LANGUAGE_CHOICES)
     level = models.CharField(max_length=20, choices=LEVEL_CHOICES)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="published")
 
     price = models.DecimalField(max_digits=10, decimal_places=2)
     discount_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
     thumbnail = models.CharField(max_length=255)
     promo_video_url = models.CharField(max_length=255)
     # Fais automatiquement dans le signal review
